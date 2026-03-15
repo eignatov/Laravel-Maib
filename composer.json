@@ -1,0 +1,58 @@
+{
+    "name": "nikba/laravel-maib",
+    "description": "Laravel 12 integration for the maib e-Commerce API — all payment types, token management, and webhook handling.",
+    "keywords": [
+        "laravel",
+        "maib",
+        "payment",
+        "ecommerce",
+        "moldova",
+        "gateway",
+        "recurring",
+        "one-click"
+    ],
+    "homepage": "https://github.com/Nikba-Creative-Studio/Laravel-Maib",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikba",
+            "homepage": "https://packagist.org/packages/nikba/"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/contracts": "^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "phpunit/phpunit": "^11.0",
+        "laravel/pint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nikba\\LaravelMaib\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nikba\\LaravelMaib\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nikba\\LaravelMaib\\MaibServiceProvider"
+            ],
+            "aliases": {
+                "Maib": "Nikba\\LaravelMaib\\Facades\\Maib"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
