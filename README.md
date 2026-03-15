@@ -1,5 +1,9 @@
 # laravel-maib
 
+<p align="center">
+  <img src="logo.svg" alt="Nikba Creative Studio" width="156" height="44">
+</p>
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/nikba/laravel-maib.svg)](https://packagist.org/packages/nikba/laravel-maib)
 [![License](https://img.shields.io/packagist/l/nikba/laravel-maib.svg)](LICENSE)
 
@@ -265,6 +269,14 @@ Event::listen(MaibPaymentFailed::class, function (MaibPaymentFailed $event) {
 ```bash
 composer test
 ```
+
+---
+
+## Author
+
+**Nicolai Bargan**  
+[Nikba Creative Studio](https://nikba.com)  
+[office@nikba.com](mailto:office@nikba.com)
 
 ---
 

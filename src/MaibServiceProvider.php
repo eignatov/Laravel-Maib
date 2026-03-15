@@ -17,6 +17,12 @@ use Nikba\LaravelMaib\Services\RecurringPaymentService;
 use Nikba\LaravelMaib\Services\RefundService;
 use Nikba\LaravelMaib\Services\TwoStepPaymentService;
 
+/**
+ * Laravel service provider for maib e-Commerce API integration.
+ *
+ * @author Nicolai Bargan <office@nikba.com>
+ * @author Nikba Creative Studio <https://nikba.com>
+ */
 class MaibServiceProvider extends ServiceProvider
 {
     public function register(): void

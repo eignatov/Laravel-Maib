@@ -15,8 +15,15 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Nikba",
-            "homepage": "https://packagist.org/packages/nikba/"
+            "name": "Nicolai Bargan",
+            "email": "office@nikba.com",
+            "homepage": "https://nikba.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Nikba Creative Studio",
+            "homepage": "https://nikba.com",
+            "role": "Maintainer"
         }
     ],
     "require": {
