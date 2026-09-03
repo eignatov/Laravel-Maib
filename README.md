@@ -16,6 +16,7 @@ A Laravel 12 package for the **maib e-Commerce API** — full coverage of all pa
 ## Features
 
 - Direct payment (one-step charge)
+- Apple Pay & Google Pay (offered automatically on the hosted checkout page — no extra code)
 - Two-step payment (hold → capture or cancel)
 - Recurring payments (register card + server-side execute)
 - One-click payments (register card + redirect execute)
@@ -115,6 +116,8 @@ $response = Maib::directPayment(
 
 return redirect($response->payUrl);
 ```
+
+> **Apple Pay & Google Pay:** no separate integration is required. When the customer is redirected to the maib checkout page (`payUrl`), maib offers Apple Pay and Google Pay alongside card entry automatically, based on the customer's device and browser. They flow through the same `/pay`, `/hold`, and one-click/recurring endpoints and return the same callback payload — so any payment you initiate with this package already supports them.
 
 ### Two-Step Payment (Hold → Capture)
 
@@ -237,8 +240,17 @@ Register this URL in your maibmerchants.md project settings.
 
 ### Listening for Events
 
+The package dispatches one of three events per callback, based on the transaction `status`:
+
+| Event | When | Callback status |
+|---|---|---|
+| `MaibPaymentReceived` | A charge succeeded (direct, execute, or save-card **with** an amount) | `OK` |
+| `MaibCardSaved` | A card was registered **without** a charge (`savecard-recurring` / `savecard-oneclick`) — `billerId` is present | `PENDING` + `billerId` |
+| `MaibPaymentFailed` | Anything else (declined, timeout, failed, reversed, or an unknown/undocumented status) | otherwise |
+
 ```php
 // In App\Providers\EventServiceProvider (or using #[AsEventListener])
+use Nikba\LaravelMaib\Events\MaibCardSaved;
 use Nikba\LaravelMaib\Events\MaibPaymentFailed;
 use Nikba\LaravelMaib\Events\MaibPaymentReceived;
 
@@ -254,11 +266,23 @@ Event::listen(MaibPaymentReceived::class, function (MaibPaymentReceived $event) 
         ]);
 });
 
+Event::listen(MaibCardSaved::class, function (MaibCardSaved $event) {
+    // Store the token for future recurring / one-click charges.
+    User::where('id', $event->payload->orderId)
+        ->update(['maib_biller_id' => $event->payload->billerId]);
+});
+
 Event::listen(MaibPaymentFailed::class, function (MaibPaymentFailed $event) {
     Order::where('maib_pay_id', $event->payload->payId)
         ->update(['status' => 'failed']);
 });
 ```
+
+### 3-D Secure
+
+The order-fulfilment decision is driven by `status`, **not** by `threeDs`. A `status` of `OK` means the payment went through — including the `SKIPPED` and `NOTPARTICIPATED` 3DS outcomes, where the card issuer chose not to challenge the cardholder. The `threeDs` value (a nullable `ThreeDsStatus` enum on the payload) is available on every event purely for your records/logging; don't gate delivery on it.
+
+Signature validation always runs **before** any event is dispatched — a callback with a bad signature returns `422` and dispatches nothing. Enum fields on the payload (`status`, `threeDs`, `currency`) are parsed leniently, so a future undocumented value degrades to `null` instead of erroring the callback (which would otherwise trigger maib's retry loop).
 
 > **Important:** Always return HTTP 200 from your listener logic — the package's callback handler already does this. maib retries the callback at increasing intervals (`10, 60, 300, 600, 3600, 43200, 86400` seconds) if it does not receive a 200 response. Implement idempotency in your listeners.
 

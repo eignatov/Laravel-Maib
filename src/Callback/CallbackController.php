@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Nikba\LaravelMaib\Dto\Responses\CallbackPayload;
 use Nikba\LaravelMaib\Enums\TransactionStatus;
+use Nikba\LaravelMaib\Events\MaibCardSaved;
 use Nikba\LaravelMaib\Events\MaibPaymentFailed;
 use Nikba\LaravelMaib\Events\MaibPaymentReceived;
 use Nikba\LaravelMaib\Exceptions\MaibSignatureException;
@@ -39,7 +40,11 @@ class CallbackController extends Controller
         $payload = CallbackPayload::fromArray($data);
 
         if ($payload->status === TransactionStatus::OK) {
+            // Charge succeeded — direct, execute, or savecard-with-amount.
             Event::dispatch(new MaibPaymentReceived($payload));
+        } elseif ($payload->status === TransactionStatus::PENDING && $payload->billerId !== null) {
+            // Card registered without a charge — savecard-recurring / savecard-oneclick.
+            Event::dispatch(new MaibCardSaved($payload));
         } else {
             Event::dispatch(new MaibPaymentFailed($payload));
         }

@@ -44,7 +44,7 @@ readonly class PayInfoResponse
         $result = $data['result'] ?? $data;
 
         $threeDs = isset($result['threeDs'])
-            ? ThreeDsStatus::from($result['threeDs'])
+            ? ThreeDsStatus::tryFrom($result['threeDs'])
             : null;
 
         $items = [];

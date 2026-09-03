@@ -15,7 +15,7 @@ readonly class CallbackPayload
         public ?string $orderId,
         public ?string $billerId,
         public ?string $billerExpiry,
-        public TransactionStatus $status,
+        public ?TransactionStatus $status,
         public string $statusCode,
         public string $statusMessage,
         public ?ThreeDsStatus $threeDs,
@@ -23,33 +23,34 @@ readonly class CallbackPayload
         public ?string $approval,
         public ?string $cardNumber,
         public float $amount,
-        public Currency $currency,
+        public ?Currency $currency,
         public string $signature,
     ) {}
 
+    /**
+     * Enum fields use tryFrom() so an undocumented value maib may add later
+     * degrades to null instead of throwing — a signature-valid callback must
+     * never 500, or maib would keep retrying it indefinitely.
+     */
     public static function fromArray(array $data): self
     {
         $result = $data['result'] ?? $data;
-
-        $threeDs = isset($result['threeDs'])
-            ? ThreeDsStatus::from($result['threeDs'])
-            : null;
 
         return new self(
             payId: $result['payId'],
             orderId: $result['orderId'] ?? null,
             billerId: $result['billerId'] ?? null,
             billerExpiry: $result['billerExpiry'] ?? null,
-            status: TransactionStatus::from($result['status']),
+            status: isset($result['status']) ? TransactionStatus::tryFrom($result['status']) : null,
             statusCode: $result['statusCode'],
             statusMessage: $result['statusMessage'],
-            threeDs: $threeDs,
+            threeDs: isset($result['threeDs']) ? ThreeDsStatus::tryFrom($result['threeDs']) : null,
             rrn: $result['rrn'] ?? null,
             approval: $result['approval'] ?? null,
             cardNumber: $result['cardNumber'] ?? null,
             amount: (float) $result['amount'],
-            currency: Currency::from($result['currency']),
-            signature: $data['signature'],
+            currency: isset($result['currency']) ? Currency::tryFrom($result['currency']) : null,
+            signature: $data['signature'] ?? '',
         );
     }
 }

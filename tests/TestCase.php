@@ -63,6 +63,7 @@ abstract class TestCase extends OrchestraTestCase
         string $payId = 'f16a9006-128a-46bc-8e2a-77a6ee99df75',
         string $status = 'OK',
         string $signatureKey = 'test-signature-key',
+        ?string $billerId = null,
     ): array {
         $result = [
             'amount' => 99.99,
@@ -76,6 +77,10 @@ abstract class TestCase extends OrchestraTestCase
             'statusCode' => '000',
             'statusMessage' => 'Approved',
         ];
+
+        if ($billerId !== null) {
+            $result['billerId'] = $billerId;
+        }
 
         $sorted = $result;
         ksort($sorted);
